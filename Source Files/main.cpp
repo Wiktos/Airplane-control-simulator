@@ -15,9 +15,6 @@ using namespace std;
 
 #include "model.h"
 
-constexpr static int WINDOW_WIDTH = 1600;
-constexpr static int WINDOW_HEIGHT = 1200;
-
 static void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 static void processInput(GLFWwindow* window);
 
@@ -36,7 +33,15 @@ int main()
 
 	try
 	{
-		GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Airplane control symulator", nullptr, nullptr);
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+		glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+		glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+		glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+		glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+
+		GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, "Airplane control symulator", monitor, nullptr);
 		if (window == nullptr)
 		{
 			throw runtime_error("Failed to create window");
@@ -50,11 +55,11 @@ int main()
 			cout << "Failed to init GLEW" << endl;
 			return -1;
 		}
+
+		Model boeing727("./Resource Files/models/boeing727/Boeing727.obj");
 		
 		ShaderProgram airplaneShader("./Resource Files/shaders/airplaneVertexShader.vert",
 			"./Resource Files/shaders/airplaneFragmentShader.frag");
-
-		Model boeing727("./Resource Files/models/boeing727/Boeing727.obj");
 
 		irrklang::ISoundEngine* symulatorSoundEnginee = irrklang::createIrrKlangDevice();
 		symulatorSoundEnginee->play2D("./Resource Files/sounds/avion_sound.mp3", GL_TRUE);
@@ -80,7 +85,7 @@ int main()
 			view = glm::rotate(view, glm::radians((GLfloat)glfwGetTime() * 1120), glm::vec3(1.0f, 0.0f, 0.0f));
 
 			glm::mat4 projection;
-			projection = glm::perspective(glm::radians(45.0f), (GLfloat)(WINDOW_WIDTH / WINDOW_HEIGHT), 0.1f, 100.0f);
+			projection = glm::perspective(glm::radians(45.0f), (GLfloat)(mode->width / mode->height), 0.1f, 100.0f);
 
 			airplaneShader.use();
 			airplaneShader.setMat4("model", model);
@@ -97,7 +102,8 @@ int main()
 		cout << ex.what() << endl;
 	}
  
-	glfwTerminate();
+
+	glfwTerminate(); 
 	return 0;
 }
 
