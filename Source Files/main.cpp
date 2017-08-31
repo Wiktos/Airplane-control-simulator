@@ -2,12 +2,14 @@
 #include <GL\glew.h>
 #include <GLFW\glfw3.h>
 
+#include <irrKlang\irrKlang.h>
+
 #include <iostream>
 
 using namespace std;
 
-constexpr static int WINDOW_WIDTH = 800;
-constexpr static int WINDOW_HEIGHT = 600;
+constexpr static int WINDOW_WIDTH = 1600;
+constexpr static int WINDOW_HEIGHT = 1200;
 
 static void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 static void processInput(GLFWwindow* window);
@@ -38,9 +40,13 @@ int main()
 		{
 			throw runtime_error("Failed to create window");
 		}
-
 		glfwMakeContextCurrent(window);
 		glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+
+		irrklang::ISoundEngine* gameSoundEnginee = irrklang::createIrrKlangDevice();
+		gameSoundEnginee->play2D("./Resource Files/sounds/avion_sound.mp3", GL_TRUE);
+		_sleep(100);
+		gameSoundEnginee->play2D("./Resource Files/sounds/avion_sound.mp3", GL_TRUE);
 
 		while (!glfwWindowShouldClose(window))
 		{
