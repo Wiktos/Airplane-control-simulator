@@ -4,9 +4,16 @@
 
 #include <irrKlang\irrKlang.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <iostream>
+#include <windows.h>
 
 using namespace std;
+
+#include "shprogram.h"
 
 constexpr static int WINDOW_WIDTH = 1600;
 constexpr static int WINDOW_HEIGHT = 1200;
@@ -23,12 +30,6 @@ int main()
 		cout << "Failed to init GLFW" << endl;
 		return -1;
 	}
-	glewExperimental = GL_TRUE;
-	if (glewInit() != GL_TRUE)
-	{
-		cout << "Failed to init GLEW" << endl;
-		return -1;
-	}
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -43,10 +44,20 @@ int main()
 		glfwMakeContextCurrent(window);
 		glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 
+		glewExperimental = GL_TRUE;
+		if (glewInit() != GLEW_OK)
+		{
+			cout << "Failed to init GLEW" << endl;
+			return -1;
+		}
+
 		irrklang::ISoundEngine* gameSoundEnginee = irrklang::createIrrKlangDevice();
 		gameSoundEnginee->play2D("./Resource Files/sounds/avion_sound.mp3", GL_TRUE);
-		_sleep(100);
+		Sleep(100);
 		gameSoundEnginee->play2D("./Resource Files/sounds/avion_sound.mp3", GL_TRUE);
+		
+		ShaderProgram airplaneShader("./Resource Files/shaders/airplaneVertexShader.vert",
+			"./Resource Files/shaders/airplaneFragmentShader.frag");
 
 		while (!glfwWindowShouldClose(window))
 		{
@@ -57,6 +68,18 @@ int main()
 			glEnable(GL_DEPTH_TEST);
 			glClearColor(0.2f, 0.5f, 0.9f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			glm::mat4 model;
+
+			glm::mat4 view;
+
+			glm::mat4 projection;
+			projection = glm::perspective(glm::radians(45.0f), (GLfloat)(WINDOW_WIDTH / WINDOW_HEIGHT), 0.1f, 100.0f);
+
+			airplaneShader.use();
+			airplaneShader.setMat4("model", model);
+			airplaneShader.setMat4("view", view);
+			airplaneShader.setMat4("projection", projection);
 		}
 	}
 	catch (exception& ex)
