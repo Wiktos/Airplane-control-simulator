@@ -10,6 +10,7 @@ constexpr static int WINDOW_WIDTH = 800;
 constexpr static int WINDOW_HEIGHT = 600;
 
 static void framebufferSizeCallback(GLFWwindow* window, int width, int height);
+static void processInput(GLFWwindow* window);
 
 int main()
 {
@@ -45,6 +46,7 @@ int main()
 		{
 			glfwPollEvents();
 			glfwSwapBuffers(window);
+			processInput(window);
 
 			glEnable(GL_DEPTH_TEST);
 			glClearColor(0.2f, 0.5f, 0.9f, 1.0f);
@@ -63,4 +65,9 @@ int main()
 void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+}
+void processInput(GLFWwindow* window)
+{
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, GL_TRUE);
 }
