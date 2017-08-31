@@ -5,7 +5,6 @@
 
 using namespace std;
 
-#include <GL/glew.h>
 #include "shprogram.h"
 
 ShaderProgram::ShaderProgram(const GLchar* vertexPath, const GLchar* fragmentPath)

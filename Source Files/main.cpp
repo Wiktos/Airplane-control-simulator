@@ -13,7 +13,7 @@
 
 using namespace std;
 
-#include "shprogram.h"
+#include "model.h"
 
 constexpr static int WINDOW_WIDTH = 1600;
 constexpr static int WINDOW_HEIGHT = 1200;
@@ -50,14 +50,16 @@ int main()
 			cout << "Failed to init GLEW" << endl;
 			return -1;
 		}
-
-		irrklang::ISoundEngine* gameSoundEnginee = irrklang::createIrrKlangDevice();
-		gameSoundEnginee->play2D("./Resource Files/sounds/avion_sound.mp3", GL_TRUE);
-		Sleep(100);
-		gameSoundEnginee->play2D("./Resource Files/sounds/avion_sound.mp3", GL_TRUE);
 		
 		ShaderProgram airplaneShader("./Resource Files/shaders/airplaneVertexShader.vert",
 			"./Resource Files/shaders/airplaneFragmentShader.frag");
+
+		Model boeing727("./Resource Files/models/boeing727/Boeing727.obj");
+
+		irrklang::ISoundEngine* symulatorSoundEnginee = irrklang::createIrrKlangDevice();
+		symulatorSoundEnginee->play2D("./Resource Files/sounds/avion_sound.mp3", GL_TRUE);
+		Sleep(100);
+		symulatorSoundEnginee->play2D("./Resource Files/sounds/avion_sound.mp3", GL_TRUE);
 
 		while (!glfwWindowShouldClose(window))
 		{
@@ -70,8 +72,12 @@ int main()
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			glm::mat4 model;
+			model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(0.05f, 0.05f, 0.05f));
+			model = glm::translate(model, glm::vec3(-10.0f, -30.0f, 0.0f));
 
 			glm::mat4 view;
+			view = glm::rotate(view, glm::radians((GLfloat)glfwGetTime() * 1120), glm::vec3(1.0f, 0.0f, 0.0f));
 
 			glm::mat4 projection;
 			projection = glm::perspective(glm::radians(45.0f), (GLfloat)(WINDOW_WIDTH / WINDOW_HEIGHT), 0.1f, 100.0f);
@@ -80,13 +86,17 @@ int main()
 			airplaneShader.setMat4("model", model);
 			airplaneShader.setMat4("view", view);
 			airplaneShader.setMat4("projection", projection);
+
+			boeing727.draw(airplaneShader);
 		}
+
+		symulatorSoundEnginee->drop();
 	}
 	catch (exception& ex)
 	{
 		cout << ex.what() << endl;
 	}
-
+ 
 	glfwTerminate();
 	return 0;
 }
