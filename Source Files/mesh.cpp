@@ -2,6 +2,7 @@
 
 #include <GL\glew.h>
 #include <string>
+#include <iostream>
 
 using namespace std;
 
@@ -42,8 +43,8 @@ void Mesh::setupMesh()
 
 void Mesh::draw(ShaderProgram shader)
 {
-	float diffuseNr = 1;
-	float specularNr = 1;
+	unsigned int diffuseNr = 1;
+	unsigned int specularNr = 1;
 	for (unsigned int i = 0; i < textures.size(); i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i); 
@@ -54,7 +55,7 @@ void Mesh::draw(ShaderProgram shader)
 		else if (name == "texture_specular")
 			number = to_string(specularNr++);
 
-		shader.setFloat(("material." + name + number).c_str(), (float)i);
+		shader.setFloat(("material." + name + number).c_str(), i);
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
 	glActiveTexture(GL_TEXTURE0);

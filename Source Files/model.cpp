@@ -1,7 +1,7 @@
 #include <iostream>
 #include "model.h"
 #include <SOIL.h>
-
+#include <GL\glew.h>
 using namespace std;
 
 void Model::draw(ShaderProgram shader)
@@ -12,8 +12,8 @@ void Model::draw(ShaderProgram shader)
 void Model::loadModel(string const &path)
 {
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
-
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+	  
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) 
 	{
 		cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
@@ -36,19 +36,12 @@ void Model::processNode(aiNode *node, const aiScene *scene)
 		processNode(node->mChildren[i], scene);
 	}
 }
-Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
+Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
 {
-	// data to fill
-	vector<Vertex> vertices;
-	vector<unsigned int> indices;
-	vector<Texture> textures;
-	
-	vertices = getMeshVertices(mesh);
-	indices = getMeshIndices(mesh);
-	textures = getMeshTextures(mesh, scene);
-	
+	vector<Vertex> vertices = getMeshVertices(mesh);
+	vector<unsigned int> indices = getMeshIndices(mesh);
+	vector<Texture> textures = getMeshTextures(mesh, scene);
 
-	// return a mesh object created from the extracted mesh data
 	return Mesh(vertices, indices, textures);
 }
 vector<Vertex> Model::getMeshVertices(aiMesh* mesh)
@@ -83,9 +76,9 @@ vector<Vertex> Model::getMeshVertices(aiMesh* mesh)
 		else
 			vertex.tex_coords = glm::vec2(0.0f, 0.0f);
 		vertices.push_back(vertex);
-
-		return vertices;
 	}
+
+	return vertices;
 }
 vector<unsigned int> Model::getMeshIndices(aiMesh* mesh)
 {
@@ -160,7 +153,7 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type,
 }
 unsigned int Model::textureFromFile(const char *path, const string &directory)
 {
-	string filename = directory + string(path);\
+	string filename = directory + string(path);
 
 	unsigned int textureID;
 	glGenTextures(1, &textureID);

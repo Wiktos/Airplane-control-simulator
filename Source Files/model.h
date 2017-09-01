@@ -6,8 +6,6 @@
 #include <assimp\postprocess.h>
 #include <assimp\scene.h>
 
-#include <GL\glew.h>
-
 #include "texture.h"
 #include "mesh.h"
 

@@ -13,10 +13,14 @@
 
 using namespace std;
 
-#include "model.h"
+#include "Model.h"
+#include "camera.h"
 
-static void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 static void processInput(GLFWwindow* window);
+
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+GLfloat deltaTime = 0.0f;
+GLfloat lastFrame = 0.0f;
 
 int main()
 {
@@ -29,7 +33,7 @@ int main()
 	}
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 
 	try
 	{
@@ -47,7 +51,7 @@ int main()
 			throw runtime_error("Failed to create window");
 		}
 		glfwMakeContextCurrent(window);
-		glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+		glViewport(0, 0, mode->width, mode->height);
 
 		glewExperimental = GL_TRUE;
 		if (glewInit() != GLEW_OK)
@@ -56,10 +60,10 @@ int main()
 			return -1;
 		}
 
-		Model boeing727("./Resource Files/models/boeing727/Boeing727.obj");
-		
 		ShaderProgram airplaneShader("./Resource Files/shaders/airplaneVertexShader.vert",
 			"./Resource Files/shaders/airplaneFragmentShader.frag");
+
+		Model boeing727("./Resource Files/models/boeing727/Boeing727.obj");
 
 		irrklang::ISoundEngine* symulatorSoundEnginee = irrklang::createIrrKlangDevice();
 		symulatorSoundEnginee->play2D("./Resource Files/sounds/avion_sound.mp3", GL_TRUE);
@@ -68,6 +72,10 @@ int main()
 
 		while (!glfwWindowShouldClose(window))
 		{
+			GLfloat currFrame = glfwGetTime();
+			deltaTime = currFrame - lastFrame;
+			lastFrame = currFrame;
+
 			glfwPollEvents();
 			glfwSwapBuffers(window);
 			processInput(window);
@@ -82,7 +90,7 @@ int main()
 			model = glm::translate(model, glm::vec3(-10.0f, -30.0f, 0.0f));
 
 			glm::mat4 view;
-			view = glm::rotate(view, glm::radians((GLfloat)glfwGetTime() * 1120), glm::vec3(1.0f, 0.0f, 0.0f));
+			view = camera.viewMatrix();
 
 			glm::mat4 projection;
 			projection = glm::perspective(glm::radians(45.0f), (GLfloat)(mode->width / mode->height), 0.1f, 100.0f);
@@ -107,12 +115,17 @@ int main()
 	return 0;
 }
 
-void framebufferSizeCallback(GLFWwindow* window, int width, int height)
-{
-	glViewport(0, 0, width, height);
-}
 void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
+
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		camera.moveForward(deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		camera.moveBackward(deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		camera.moveRight(deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		camera.moveLeft(deltaTime);
 }
