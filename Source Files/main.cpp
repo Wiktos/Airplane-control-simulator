@@ -13,14 +13,17 @@
 
 using namespace std;
 
-#include "Model.h"
+#include "airplane.h"
 #include "camera.h"
 
 static void processInput(GLFWwindow* window);
 
-Camera camera(glm::vec3(0.00122279, 2.84064f, 5.60991f));
+Camera camera(glm::vec3(0.0f, 0.0f, 7.0f));
+
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
+
+Airplane* boeing727;
 
 int main()
 {
@@ -51,7 +54,6 @@ int main()
 			throw runtime_error("Failed to create window");
 		}
 		glfwMakeContextCurrent(window);
-		glViewport(0, 0, mode->width, mode->height);
 
 		glewExperimental = GL_TRUE;
 		if (glewInit() != GLEW_OK)
@@ -63,7 +65,7 @@ int main()
 		ShaderProgram airplaneShader("./Resource Files/shaders/airplaneVertexShader.vert",
 			"./Resource Files/shaders/airplaneFragmentShader.frag");
 
-		Model boeing727("./Resource Files/models/boeing727/Boeing727.obj");
+		boeing727 = new Airplane("./Resource Files/models/boeing727/Boeing727.obj", 10.0f);
 		
 		irrklang::ISoundEngine* symulatorSoundEnginee = irrklang::createIrrKlangDevice();
 		symulatorSoundEnginee->play2D("./Resource Files/sounds/avion_sound.mp3", GL_TRUE);
@@ -76,18 +78,16 @@ int main()
 			deltaTime = currFrame - lastFrame;
 			lastFrame = currFrame;
 
-			glfwPollEvents();
 			glfwSwapBuffers(window);
+			glfwPollEvents();
 			processInput(window);
 
 			glEnable(GL_DEPTH_TEST);
 			glClearColor(0.2f, 0.5f, 0.9f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			glm::mat4 model;
-			model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(0.05f, 0.05f, 0.05f));
-			model = glm::translate(model, glm::vec3(-10.0f, -30.0f, 0.0f));
+			glm::mat4 airplaneModel;
+			airplaneModel = boeing727->modelMatrix();
 
 			glm::mat4 view;
 			view = camera.viewMatrix();
@@ -96,13 +96,14 @@ int main()
 			projection = glm::perspective(glm::radians(45.0f), (GLfloat)(mode->width / mode->height), 0.1f, 100.0f);
 
 			airplaneShader.use();
-			airplaneShader.setMat4("model", model);
+			airplaneShader.setMat4("model", airplaneModel);
 			airplaneShader.setMat4("view", view);
-			airplaneShader.setMat4("projection", projection);
+			airplaneShader.setMat4("projection", projection); 
 
-			boeing727.draw(airplaneShader);
+			boeing727->draw(airplaneShader);
 		}
 
+		delete boeing727;
 		symulatorSoundEnginee->drop();
 	}
 	catch (exception& ex)
@@ -122,18 +123,18 @@ void processInput(GLFWwindow* window)
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		camera.moveForward(deltaTime);
+		boeing727->leanForward(deltaTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		camera.moveBackward(deltaTime);
+		boeing727->leanBackward(deltaTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		camera.moveRight(deltaTime);
+		boeing727->rollRight(deltaTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		camera.moveLeft(deltaTime);
+		boeing727->rollLeft(deltaTime);
 	}
 }
