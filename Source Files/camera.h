@@ -13,7 +13,7 @@ class Camera
 public:
 	Camera(glm::vec3 position) : position(position) 
 	{
-		front = glm::vec3(0.0f, 0.0f, -1.0f);
+		front = glm::vec3(0.00153369f, -0.477159f, -0.878816f);
 		up = glm::vec3(0.0f, 1.0f, 0.0f);
 		movementSensitivity = 2.5f;
 		updateCameraVectors();

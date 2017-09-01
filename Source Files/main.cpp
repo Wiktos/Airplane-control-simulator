@@ -18,7 +18,7 @@ using namespace std;
 
 static void processInput(GLFWwindow* window);
 
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.00122279, 2.84064f, 5.60991f));
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
 
@@ -64,7 +64,7 @@ int main()
 			"./Resource Files/shaders/airplaneFragmentShader.frag");
 
 		Model boeing727("./Resource Files/models/boeing727/Boeing727.obj");
-
+		
 		irrklang::ISoundEngine* symulatorSoundEnginee = irrklang::createIrrKlangDevice();
 		symulatorSoundEnginee->play2D("./Resource Files/sounds/avion_sound.mp3", GL_TRUE);
 		Sleep(100);
@@ -121,11 +121,19 @@ void processInput(GLFWwindow* window)
 		glfwSetWindowShouldClose(window, GL_TRUE);
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	{
 		camera.moveForward(deltaTime);
+	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	{
 		camera.moveBackward(deltaTime);
+	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	{
 		camera.moveRight(deltaTime);
+	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	{
 		camera.moveLeft(deltaTime);
+	}
 }
