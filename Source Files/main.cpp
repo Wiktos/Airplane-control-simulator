@@ -21,6 +21,10 @@ using namespace std;
 #include "skybox.h"
 
 static void processInput(GLFWwindow* window);
+int sgn(float val) 
+{
+	return (float(0) < val) - (val < float(0));
+}
 
 Camera camera(glm::vec3(0.0f, -0.5f, 7.0f));
 
@@ -28,6 +32,8 @@ GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
 
 unique_ptr<Airplane> boeing727;
+glm::mat4 airplaneControlModelMatrix;
+glm::mat4 areaControlModelMatrix;
 
 int main()
 {
@@ -79,6 +85,7 @@ int main()
 		symulatorSoundEnginee->play2D("./Resource Files/sounds/avion_sound.mp3", GL_TRUE);
 
 		Skybox area;
+		glm::mat4 areaModel;
 
 		while (!glfwWindowShouldClose(window))
 		{
@@ -105,19 +112,30 @@ int main()
 
 			airplaneShader.use();
 			airplaneShader.setMat4("model", airplaneModel);
-			airplaneShader.setMat4("view", view);
+			airplaneShader.setMat4("view", view); 
 			airplaneShader.setMat4("projection", projection); 
 
 			boeing727->draw(airplaneShader);
 
 			glDepthFunc(GL_LEQUAL);  
 			skyboxShader.use();
-			glm::mat4 model;
-			model = glm::rotate(model, (GLfloat)glfwGetTime() / 5.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+			
+			areaModel = glm::mat4();
+			areaModel = glm::translate(areaModel, glm::vec3(0.0f, 0.0f, glfwGetTime() / 75.0f));
+			float rollAngle = boeing727->getRollAngle();
+			if (rollAngle != 0.0f)
+			{
+				areaControlModelMatrix = glm::rotate(areaControlModelMatrix, -sin(glm::radians(rollAngle)) * deltaTime / 10.0f,
+					glm::vec3(0.0f, 1.0f, 0.0f));
+			}
+			areaModel *= areaControlModelMatrix;
+			
 			view = glm::mat4(glm::mat3(camera.viewMatrix())); // remove translation from the view matrix
-			skyboxShader.setMat4("model", model);
+			
+			skyboxShader.setMat4("model", areaModel);
 			skyboxShader.setMat4("view", view);
 			skyboxShader.setMat4("projection", projection);
+			
 			area.draw();
 			glDepthFunc(GL_LESS);
 		}
@@ -142,10 +160,18 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
 		boeing727->leanForward(deltaTime);
+		if (boeing727->isPitchingPossible())
+		{
+			areaControlModelMatrix = glm::rotate(areaControlModelMatrix, deltaTime / 7.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+		}
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
 		boeing727->leanBackward(deltaTime);
+		if (boeing727->isPitchingPossible())
+		{
+			areaControlModelMatrix = glm::rotate(areaControlModelMatrix, deltaTime / 7.0f, glm::vec3(-1.0f, 0.0f, 0.0f));
+		}
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{

@@ -57,6 +57,15 @@ Skybox::Skybox()
 	loadCubemap();
 }
 
+void Skybox::draw()
+{
+	glBindVertexArray(VAO);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+	glDrawArrays(GL_TRIANGLES, 0, skybox_coords.size());
+	glBindVertexArray(0);
+}
+
 void Skybox::setCoords()
 {
 	for (int i = 0; i < _countof(skyboxVertices); i++)
@@ -101,13 +110,4 @@ void Skybox::loadCubemap()
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-}
-
-void Skybox::draw()
-{
-	glBindVertexArray(VAO);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-	glDrawArrays(GL_TRIANGLES, 0, skybox_coords.size());
-	glBindVertexArray(0);
 }

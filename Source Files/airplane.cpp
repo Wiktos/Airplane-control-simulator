@@ -5,18 +5,26 @@ using namespace std;
 void Airplane::rollLeft(float deltaTime)
 {
 	rollAngle += movementSensitivity * deltaTime;
+	if (rollAngle > 45.0f)
+		rollAngle = 45.0f;
 }
 void Airplane::rollRight(float deltaTime)
 {
 	rollAngle -= movementSensitivity * deltaTime;
+	if (rollAngle < -45.0f)
+		rollAngle = -45.0f;
 }
 void Airplane::leanForward(float deltaTime)
 {
 	pitchAngle += movementSensitivity * deltaTime;
+	if (pitchAngle > 20.0f)
+		pitchAngle = 20.0f;
 }
 void Airplane::leanBackward(float deltaTime)
 {
 	pitchAngle -= movementSensitivity * deltaTime;
+	if (pitchAngle < -20.0f)
+		pitchAngle = -20.0f;
 }
 void Airplane::updateModelMatrix()
 {
